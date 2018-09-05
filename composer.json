@@ -1,0 +1,44 @@
+{
+    "name": "weiwenhao/included",
+    "description": "state machine",
+    "keywords": ["included", "api", "laravel"],
+    "license": "MIT",
+    "type": "library",
+    "support": {
+        "issues": "https://github.com/weiwenhao/included/issues",
+        "source": "https://github.com/weiwenhao/included"
+    },
+    "authors": [
+        {
+            "name": "weiwenhao",
+            "email": "1101140857@qq.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7.1.0",
+        "illuminate/support": "5.5.*|5.6.*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7.2",
+        "orchestra/testbench": "3.6.*",
+        "mockery/mockery": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Weiwenhao\\Included\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Weiwenhao\\Included\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Weiwenhao\\Included\\Providers\\IncludesServiceProvider"
+            ]
+        }
+    }
+}
