@@ -1,12 +1,12 @@
 {
-    "name": "weiwenhao/included",
+    "name": "weiwenhao/including",
     "description": "state machine",
-    "keywords": ["included", "api", "laravel"],
+    "keywords": ["including", "api", "laravel"],
     "license": "MIT",
     "type": "library",
     "support": {
-        "issues": "https://github.com/weiwenhao/included/issues",
-        "source": "https://github.com/weiwenhao/included"
+        "issues": "https://github.com/weiwenhao/including/issues",
+        "source": "https://github.com/weiwenhao/including"
     },
     "authors": [
         {
@@ -26,18 +26,18 @@
     },
     "autoload": {
         "psr-4": {
-            "Weiwenhao\\Included\\": "src/"
+            "Weiwenhao\\Including\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Weiwenhao\\Included\\Tests\\": "tests/"
+            "Weiwenhao\\Including\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Weiwenhao\\Included\\Providers\\IncludesServiceProvider"
+                "Weiwenhao\\Including\\Providers\\IncludesServiceProvider"
             ]
         }
     }

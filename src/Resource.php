@@ -1,6 +1,6 @@
 <?php
 
-namespace Weiwenhao\Included;
+namespace Weiwenhao\Including;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Config;
@@ -96,7 +96,7 @@ abstract class Resource
             }
 
             if (!isset($constraint['resource'])) {
-                $constraint['resource'] = "Weiwenhao\\Included\\Tests\\Stubs\\" . studly_case(str_singular($name).'_resource');
+                $constraint['resource'] = "Weiwenhao\\Including\\Tests\\Stubs\\" . studly_case(str_singular($name).'_resource');
             }
 
             $temp[$name] = $constraint;

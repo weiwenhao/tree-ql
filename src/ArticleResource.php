@@ -1,6 +1,6 @@
 <?php
 
-namespace Weiwenhao\Included;
+namespace Weiwenhao\Including;
 
 use Illuminate\Database\Eloquent\Collection;
 

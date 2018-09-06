@@ -1,6 +1,6 @@
 <?php
 
-namespace Weiwenhao\Included\Providers;
+namespace Weiwenhao\Including\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
