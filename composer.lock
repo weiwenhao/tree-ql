@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7e727058076c729803af39cc5daa80b5",
+    "content-hash": "5fa6d2e23159f22fd88bbc73f6b8737e",
     "packages": [
         {
             "name": "doctrine/inflector",
@@ -1402,12 +1402,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/finder.git",
-                "reference": "4cf18147c61cc36e6dcad9486b34a6452c05af33"
+                "reference": "faec028be9c4992e92381850ae5751dff5edea78"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/finder/zipball/4cf18147c61cc36e6dcad9486b34a6452c05af33",
-                "reference": "4cf18147c61cc36e6dcad9486b34a6452c05af33",
+                "url": "https://api.github.com/repos/symfony/finder/zipball/faec028be9c4992e92381850ae5751dff5edea78",
+                "reference": "faec028be9c4992e92381850ae5751dff5edea78",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -1449,7 +1449,7 @@
             ],
             "description": "Symfony Finder Component",
             "homepage": "https://symfony.com",
-            "time": "2018-09-02T17:48:09+00:00"
+            "time": "2018-09-05T17:51:25+00:00"
         },
         {
             "name": "symfony/http-foundation",
@@ -1517,12 +1517,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-kernel.git",
-                "reference": "c4de8cc35d71eee7244c96751350344733718821"
+                "reference": "5eb3c16f4c1145cb5dc9329be79113e3d07dba24"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-kernel/zipball/c4de8cc35d71eee7244c96751350344733718821",
-                "reference": "c4de8cc35d71eee7244c96751350344733718821",
+                "url": "https://api.github.com/repos/symfony/http-kernel/zipball/5eb3c16f4c1145cb5dc9329be79113e3d07dba24",
+                "reference": "5eb3c16f4c1145cb5dc9329be79113e3d07dba24",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -1604,7 +1604,7 @@
             ],
             "description": "Symfony HttpKernel Component",
             "homepage": "https://symfony.com",
-            "time": "2018-09-04T17:12:10+00:00"
+            "time": "2018-09-05T12:00:05+00:00"
         },
         {
             "name": "symfony/polyfill-ctype",
@@ -2211,12 +2211,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/instantiator.git",
-                "reference": "17becf3b5d22399af644022f9b5a9755eff4375a"
+                "reference": "8788c31191242bca77a260b1d2c2621f18c9c1c3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/instantiator/zipball/17becf3b5d22399af644022f9b5a9755eff4375a",
-                "reference": "17becf3b5d22399af644022f9b5a9755eff4375a",
+                "url": "https://api.github.com/repos/doctrine/instantiator/zipball/8788c31191242bca77a260b1d2c2621f18c9c1c3",
+                "reference": "8788c31191242bca77a260b1d2c2621f18c9c1c3",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -2264,63 +2264,7 @@
                 "constructor",
                 "instantiate"
             ],
-            "time": "2018-09-01T09:40:46+00:00"
-        },
-        {
-            "name": "fzaninotto/faker",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/fzaninotto/Faker.git",
-                "reference": "bbb5fdeae10cfbbee3cb2debdf449ab426a1f3cc"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/fzaninotto/Faker/zipball/bbb5fdeae10cfbbee3cb2debdf449ab426a1f3cc",
-                "reference": "bbb5fdeae10cfbbee3cb2debdf449ab426a1f3cc",
-                "shasum": "",
-                "mirrors": [
-                    {
-                        "url": "https://dl.laravel-china.org/%package%/%reference%.%type%",
-                        "preferred": true
-                    }
-                ]
-            },
-            "require": {
-                "php": "^5.3.3 || ^7.0"
-            },
-            "require-dev": {
-                "ext-intl": "*",
-                "phpunit/phpunit": "^4.8.35 || ^5.7",
-                "squizlabs/php_codesniffer": "^1.5"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.9-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Faker\\": "src/Faker/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "François Zaninotto"
-                }
-            ],
-            "description": "Faker is a PHP library that generates fake data for you.",
-            "keywords": [
-                "data",
-                "faker",
-                "fixtures"
-            ],
-            "time": "2018-08-24T07:12:40+00:00"
+            "time": "2018-09-05T19:40:54+00:00"
         },
         {
             "name": "hamcrest/hamcrest-php",
@@ -2382,12 +2326,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/mockery/mockery.git",
-                "reference": "12d4d35c93959c45370f2959e8ee2234b61f13aa"
+                "reference": "ebf386c955bf78b68a9b1469e10a2e105cc7e214"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mockery/mockery/zipball/12d4d35c93959c45370f2959e8ee2234b61f13aa",
-                "reference": "12d4d35c93959c45370f2959e8ee2234b61f13aa",
+                "url": "https://api.github.com/repos/mockery/mockery/zipball/ebf386c955bf78b68a9b1469e10a2e105cc7e214",
+                "reference": "ebf386c955bf78b68a9b1469e10a2e105cc7e214",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -2403,7 +2347,7 @@
             },
             "require-dev": {
                 "phpdocumentor/phpdocumentor": "^2.9",
-                "phpunit/phpunit": "~5.7.10|~6.5"
+                "phpunit/phpunit": "~5.7.10|~6.5|~7.0"
             },
             "type": "library",
             "extra": {
@@ -2446,7 +2390,7 @@
                 "test double",
                 "testing"
             ],
-            "time": "2018-07-30T15:34:24+00:00"
+            "time": "2018-09-05T13:31:21+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -2501,134 +2445,6 @@
                 "object graph"
             ],
             "time": "2018-06-11T23:09:50+00:00"
-        },
-        {
-            "name": "orchestra/testbench",
-            "version": "3.6.x-dev",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/orchestral/testbench.git",
-                "reference": "69efc696a969ed153b649c27fa2fbbade57af98a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/orchestral/testbench/zipball/69efc696a969ed153b649c27fa2fbbade57af98a",
-                "reference": "69efc696a969ed153b649c27fa2fbbade57af98a",
-                "shasum": "",
-                "mirrors": [
-                    {
-                        "url": "https://dl.laravel-china.org/%package%/%reference%.%type%",
-                        "preferred": true
-                    }
-                ]
-            },
-            "require": {
-                "laravel/framework": "~5.6.13",
-                "orchestra/testbench-core": "~3.6.6",
-                "php": ">=7.1",
-                "phpunit/phpunit": "^7.0"
-            },
-            "require-dev": {
-                "mockery/mockery": "^1.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "3.6-dev"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Mior Muhammad Zaki",
-                    "email": "crynobone@gmail.com",
-                    "homepage": "https://github.com/crynobone"
-                }
-            ],
-            "description": "Laravel Testing Helper for Packages Development",
-            "homepage": "http://orchestraplatform.com/docs/latest/components/testbench/",
-            "keywords": [
-                "BDD",
-                "TDD",
-                "laravel",
-                "orchestra-platform",
-                "orchestral",
-                "testing"
-            ],
-            "time": "2018-09-03T02:55:26+00:00"
-        },
-        {
-            "name": "orchestra/testbench-core",
-            "version": "3.6.x-dev",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/orchestral/testbench-core.git",
-                "reference": "9577fd6ed2f715a05bc1f5bf866d0d211c390f80"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/orchestral/testbench-core/zipball/9577fd6ed2f715a05bc1f5bf866d0d211c390f80",
-                "reference": "9577fd6ed2f715a05bc1f5bf866d0d211c390f80",
-                "shasum": "",
-                "mirrors": [
-                    {
-                        "url": "https://dl.laravel-china.org/%package%/%reference%.%type%",
-                        "preferred": true
-                    }
-                ]
-            },
-            "require": {
-                "fzaninotto/faker": "^1.4",
-                "php": ">=7.1"
-            },
-            "require-dev": {
-                "laravel/framework": "~5.6.13",
-                "mockery/mockery": "^1.0",
-                "phpunit/phpunit": "^7.0"
-            },
-            "suggest": {
-                "laravel/framework": "Required for testing (~5.6.13).",
-                "mockery/mockery": "Allow to use Mockery for testing (~1.0).",
-                "orchestra/testbench-browser-kit": "Allow to use legacy Laravel BrowserKit for testing (~3.6).",
-                "orchestra/testbench-dusk": "Allow to use Laravel Dusk for testing (~3.6).",
-                "phpunit/phpunit": "Allow to use PHPUnit for testing (~7.0)."
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "3.6-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Orchestra\\Testbench\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Mior Muhammad Zaki",
-                    "email": "crynobone@gmail.com",
-                    "homepage": "https://github.com/crynobone"
-                }
-            ],
-            "description": "Testing Helper for Laravel Development",
-            "homepage": "http://orchestraplatform.com/docs/latest/components/testbench/",
-            "keywords": [
-                "BDD",
-                "TDD",
-                "laravel",
-                "orchestra-platform",
-                "orchestral",
-                "testing"
-            ],
-            "time": "2018-08-22T23:21:55+00:00"
         },
         {
             "name": "phar-io/manifest",
@@ -3268,12 +3084,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "61fe77b6233b10915975ba5166efa6cb274f6b3e"
+                "reference": "9dddd1e7c96b14beaad7f3887e598b8db2d955aa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/61fe77b6233b10915975ba5166efa6cb274f6b3e",
-                "reference": "61fe77b6233b10915975ba5166efa6cb274f6b3e",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/9dddd1e7c96b14beaad7f3887e598b8db2d955aa",
+                "reference": "9dddd1e7c96b14beaad7f3887e598b8db2d955aa",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -3350,7 +3166,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2018-09-01T15:51:09+00:00"
+            "time": "2018-09-05T09:59:26+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",

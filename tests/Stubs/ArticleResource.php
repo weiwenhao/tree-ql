@@ -1,8 +1,8 @@
 <?php
 
-namespace Weiwenhao\Included\Tests\Stubs;
+namespace Weiwenhao\Including\Tests\Stubs;
 
-use Weiwenhao\Included\Resource;
+use Weiwenhao\Including\Resource;
 
 class ArticleResource extends Resource
 {
@@ -20,6 +20,5 @@ class ArticleResource extends Resource
 
     public function getLiked()
     {
-
     }
 }

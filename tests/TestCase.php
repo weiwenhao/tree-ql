@@ -1,6 +1,6 @@
 <?php
 
-namespace Weiwenhao\Included\Tests;
+namespace Weiwenhao\Including\Tests;
 
 class TestCase extends \Orchestra\Testbench\TestCase
 {

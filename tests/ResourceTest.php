@@ -1,8 +1,8 @@
 <?php
 
-namespace Weiwenhao\Included\Tests;
+namespace Weiwenhao\Including\Tests;
 
-use Weiwenhao\Included\Tests\Stubs\ExampleResource;
+use Weiwenhao\Including\Tests\Stubs\ExampleResource;
 
 class ResourceTest extends TestCase
 {

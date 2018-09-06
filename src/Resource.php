@@ -3,6 +3,7 @@
 namespace Weiwenhao\Including;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Config;
 
 abstract class Resource
@@ -19,21 +20,11 @@ abstract class Resource
     protected $includeMeta = [];
     protected $includeOther = [];
 
-    private $model;
-
     private $builder;
 
-    private $query;
+    private $tree;
 
-    private $dataTree;
-
-    private $root;
-
-    private $dataFactory;
-
-    private $include;
-
-    private $includeTree;
+    private $collection;
 
     /**
      * limit 使用get
@@ -46,45 +37,47 @@ abstract class Resource
      * @param null $builder
      * @return $this
      */
-    public function parse($builder)
+    public static function parse($builder)
     {
-        $this->builder = $builder;
+        $resource = new static();
 
-        $requestInclude = $this->parseInclude(request('include'));
+        $resource->builder = $builder;
 
-        $this->includeTree = $this->structureTree($requestInclude);
+        $requestInclude = $resource->parseInclude(request('include'));
 
-        return $this;
+        $resource->tree = $resource->structureTree($requestInclude);
+
+        return $resource;
     }
 
     public function structureTree(array $include)
     {
-          $tree = [
-              'columns' => $this->baseColumns,
-              'meta' => [],
-              'other' => [],
-              'relations' => []
-          ];
+        $tree = [
+            'resource' => $this,
+            'columns' => $this->baseColumns,
+            'meta' => [],
+            'other' => [],
+            'relations' => []
+        ];
 
-          $this->formatIncludeConfig();
+        $this->formatIncludeConfig();
 
-          foreach ($include as $name => $constraint) {
-              if (is_numeric($name)) {
-                  $name = $constraint;
-              }
+        foreach ($include as $name => $constraint) {
+            if (is_numeric($name)) {
+                $name = $constraint;
+            }
 
-              if (in_array($name, $this->includeColumns, true)) {
-                  $tree['columns'][] = $name;
-              } elseif (isset($this->includeRelations[$name])) {
-                  $class = $this->includeRelations[$name]['resource'];
-                  $resource = new $class();
-                  $tree['relations'][$name] = $resource->structureTree(is_array($constraint) ? $constraint : []);
-              }
-          }
+            if (in_array($name, $this->includeColumns, true)) {
+                $tree['columns'][] = $name;
+            } elseif (isset($this->includeRelations[$name])) {
+                $class = $this->includeRelations[$name]['resource'];
+                $resource = new $class();
+                $tree['relations'][$name] = $resource->structureTree(is_array($constraint) ? $constraint : []);
+            }
+        }
 
-          return $tree;
+            return $tree;
     }
-
 
     public function formatIncludeConfig()
     {
@@ -96,7 +89,8 @@ abstract class Resource
             }
 
             if (!isset($constraint['resource'])) {
-                $constraint['resource'] = "Weiwenhao\\Including\\Tests\\Stubs\\" . studly_case(str_singular($name).'_resource');
+                $constraint['resource'] = "Weiwenhao\\Including\\Tests\\Stubs\\"
+                    . studly_case(str_singular($name).'_resource');
             }
 
             $temp[$name] = $constraint;
@@ -158,32 +152,35 @@ abstract class Resource
 
     public function findOrFail($id, $columns = null)
     {
-        if (is_null($columns)) {
-            $columns = $this->baseColumns;
-        }
+        $columns = array_merge($this->tree['columns'], $columns ?? []);
 
-        $columns = array_merge($columns, $this->query->getIncludeColumns());
+        $result = $this->builder->findOrFail($id, $columns);
+        $this->collection = new Collection($result);
 
-        $item = parent::findOrFail($id, $columns);
+        $this->load($this->tree);
 
-        $this->includeRelations($item);
-
-        return $item;
+        return $result;
     }
 
-    /**
-     * @param $relations
-     * @param $collection
-     */
-    public function includeRelations($relations, $collection)
+    public function getCollection()
     {
+        return $this->collection;
+    }
 
-        // array_keys
-        foreach ($relations as $key => $relation) {
-            $resource = new $relation->resource;
+    public function load($constraint, $relationName = null, $parentResource = null)
+    {
+        // 加载关联关系
+        if ($parentResource) {
+            $collection = $parentResource->getCollection();
+            $collection->loadMissing([$relationName => function ($builder) use ($constraint) {
+                $builder->addSelect($constraint['columns']);
+            }]);
+        }
 
-            $resource->includeRelations($relations['key'], $collection); // this is tree
-            // children
+        // load
+        foreach ($constraint['relations'] as $constraint) {
+            $childResource = $constraint['resource'];
+            $childResource->load($constraint, $this);
         }
     }
 }
