@@ -2,6 +2,7 @@
 
 namespace Weiwenhao\Including;
 
+use App\Resources\ProductVariantResource;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Config;
@@ -25,6 +26,8 @@ abstract class Resource
     private $tree;
 
     private $collection;
+
+    private $meta = [];
 
     /**
      * limit 使用get
@@ -155,11 +158,13 @@ abstract class Resource
         $columns = array_merge($this->tree['columns'], $columns ?? []);
 
         $result = $this->builder->findOrFail($id, $columns);
-        $this->collection = new Collection($result);
-
+        $this->collection = new Collection([$result]);
         $this->load($this->tree);
 
-        return $result;
+        return [
+            'data' => $result,
+            'meta' => $this->meta,
+        ];
     }
 
     public function getCollection()
@@ -167,20 +172,27 @@ abstract class Resource
         return $this->collection;
     }
 
+    public function setCollection(Collection $collection)
+    {
+        return $this->collection = $collection;
+    }
+
     public function load($constraint, $relationName = null, $parentResource = null)
     {
-        // 加载关联关系
+        // 加载父级需要的在下的关联
         if ($parentResource) {
             $collection = $parentResource->getCollection();
             $collection->loadMissing([$relationName => function ($builder) use ($constraint) {
                 $builder->addSelect($constraint['columns']);
             }]);
+
+            $this->setCollection(Collection::make($collection->pluck($relationName)->flatten()));
         }
 
-        // load
-        foreach ($constraint['relations'] as $constraint) {
+        // 交出控制权
+        foreach ($constraint['relations'] as $name => $constraint) {
             $childResource = $constraint['resource'];
-            $childResource->load($constraint, $this);
+            $childResource->load($constraint, $name, $this);
         }
     }
 }
