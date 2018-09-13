@@ -5,7 +5,11 @@ namespace Weiwenhao\Including;
 use App\Resources\ProductVariantResource;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Config;
+use Weiwenhao\Including\Exceptions\IteratorBreakException;
+use Weiwenhao\Including\Exceptions\IteratorContinueException;
 
 abstract class Resource
 {
@@ -23,12 +27,26 @@ abstract class Resource
 
     private $builder;
 
-    private $tree;
+    public $tree;
 
     private $collection;
 
     private $meta = [];
 
+    public $parentResource = null;
+
+    protected static $parsedInclude;
+
+
+    public function getIncludeCoums()
+    {
+        return $this->includeColumns;
+    }
+
+    public function getBaseColumns()
+    {
+        return $this->baseColumns;
+    }
     /**
      * limit 使用get
      * per_page 使用paginate
@@ -40,17 +58,33 @@ abstract class Resource
      * @param null $builder
      * @return $this
      */
-    public static function parse($builder)
+    public static function parse($data)
     {
         $resource = new static();
 
-        $resource->builder = $builder;
+        // 分布处理
+        if ($data instanceof Model) {
+            $resource->setCollection(Collection::make([$data]));
+        } elseif ($data instanceof Collection) {
+            $resource->setCollection($data);
+        } elseif ($data instanceof LengthAwarePaginator) {
+            $resource->meta['pagination'] = $resource->parsePagination($data);
+            $data = $data->getCollection();
 
-        $requestInclude = $resource->parseInclude(request('include'));
+            $resource->setCollection($data);
+        }
 
-        $resource->tree = $resource->structureTree($requestInclude);
 
-        return $resource;
+        $parsedInclude = static::getParsedInclude();
+        $resource->tree = $resource->structureTree($parsedInclude);
+
+        $resource->load($resource->tree);
+
+        return [
+            'data' => $data,
+            'meta' => $resource->meta,
+        ];
+        return $data;
     }
 
     public function structureTree(array $include)
@@ -72,6 +106,10 @@ abstract class Resource
 
             if (in_array($name, $this->includeColumns, true)) {
                 $tree['columns'][] = $name;
+            } elseif (in_array($name, $this->includeMeta, true)) {
+                $tree['meta'][] = $name;
+            } elseif (in_array($name, $this->includeOther, true)) {
+                $tree['other'][] = $name;
             } elseif (isset($this->includeRelations[$name])) {
                 $class = $this->includeRelations[$name]['resource'];
                 $resource = new $class();
@@ -101,6 +139,14 @@ abstract class Resource
         $this->includeRelations = $temp;
     }
 
+    public static function getParsedInclude()
+    {
+        if (!static::$parsedInclude) {
+            static::$parsedInclude = static::parseInclude(request('include'));
+        }
+
+        return static::$parsedInclude;
+    }
 
 
     /**
@@ -124,7 +170,7 @@ abstract class Resource
      * @param null $startToken
      * @return array
      */
-    private function parseInclude($string, $startToken = null)
+    private static function parseInclude($string, $startToken = null)
     {
         static $offset = 0;
         $temp = [];
@@ -142,7 +188,7 @@ abstract class Resource
 
             // 解析
             if (in_array($char, ['.', '{'], true)) { // 入栈
-                $array[implode('', $temp)] = $this->parseInclude($string, $char);
+                $array[implode('', $temp)] = static::parseInclude($string, $char);
                 $temp = [];
             } elseif ($char === '}' || ($char === ',' && $startToken === '.')) { // 出栈
                 return $array;
@@ -167,6 +213,17 @@ abstract class Resource
         ];
     }
 
+    public function parsePagination(LengthAwarePaginator $paginate)
+    {
+        return [
+            'per_page' => $paginate->perPage(),
+            'total' => $paginate->total(),
+            'current' => $paginate->currentPage(),
+            'next' => $paginate->nextPageUrl(),
+            'previous' => $paginate->previousPageUrl()
+        ];
+    }
+
     public function getCollection()
     {
         return $this->collection;
@@ -179,6 +236,9 @@ abstract class Resource
 
     public function load($constraint, $relationName = null, $parentResource = null)
     {
+        // 记录parent
+        $this->parentResource = $parentResource;
+
         // 加载父级需要的在下的关联
         if ($parentResource) {
             $collection = $parentResource->getCollection();
@@ -187,12 +247,49 @@ abstract class Resource
             }]);
 
             $this->setCollection(Collection::make($collection->pluck($relationName)->flatten()));
+
+            // other and callback
+            $this->loadOther($constraint['other']);
+        }
+
+
+        // 加载meta
+        foreach ($constraint['meta'] as $name) {
+            $this->getRootResource()->meta[$name] = $this->{camel_case($name)}();
         }
 
         // 交出控制权
         foreach ($constraint['relations'] as $name => $constraint) {
             $childResource = $constraint['resource'];
             $childResource->load($constraint, $name, $this);
+        }
+    }
+
+    protected function loadOther($other)
+    {
+        foreach ($other as $name) {
+            foreach ($this->getCollection() as $item) {
+                try {
+                    $item->{$name} = $this->{camel_case($name)}($item);
+                } catch (IteratorContinueException $e) {
+                    continue;
+                } catch (IteratorBreakException $e) {
+                    break;
+                }
+            }
+        }
+    }
+
+    public function getRootResource()
+    {
+        $resource = $this;
+
+        while (true) {
+            if (!$resource->parentResource) {
+                return $resource;
+            }
+
+            $resource = $resource->parentResource;
         }
     }
 }
