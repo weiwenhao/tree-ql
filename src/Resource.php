@@ -3,6 +3,8 @@
 namespace Weiwenhao\Including;
 
 use App\Resources\ProductVariantResource;
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -11,8 +13,13 @@ use Illuminate\Support\Facades\Config;
 use Weiwenhao\Including\Exceptions\IteratorBreakException;
 use Weiwenhao\Including\Exceptions\IteratorContinueException;
 
-abstract class Resource
+abstract class Resource implements Arrayable
 {
+    private $meta = [];
+
+
+    private $data = null;
+
     // 数据初始化
     protected $baseColumns = [];
 
@@ -31,7 +38,7 @@ abstract class Resource
 
     private $collection;
 
-    private $meta = [];
+
 
     public $parentResource = null;
 
@@ -74,17 +81,13 @@ abstract class Resource
             $resource->setCollection($data);
         }
 
-
+        $resource->data = $data;
         $parsedInclude = static::getParsedInclude();
         $resource->tree = $resource->structureTree($parsedInclude);
 
         $resource->load($resource->tree);
 
-        return [
-            'data' => $data,
-            'meta' => $resource->meta,
-        ];
-        return $data;
+        return $resource;
     }
 
     public function structureTree(array $include)
@@ -130,7 +133,7 @@ abstract class Resource
             }
 
             if (!isset($constraint['resource'])) {
-                $constraint['resource'] = "Weiwenhao\\Including\\Tests\\Stubs\\"
+                $constraint['resource'] = config('including.resource_namespace', "App\\Resources\\")
                     . studly_case(str_singular($name).'_resource');
             }
 
@@ -197,20 +200,6 @@ abstract class Resource
 
         $temp && $array[] = implode('', $temp);
         return $array;
-    }
-
-    public function findOrFail($id, $columns = null)
-    {
-        $columns = array_merge($this->tree['columns'], $columns ?? []);
-
-        $result = $this->builder->findOrFail($id, $columns);
-        $this->collection = new Collection([$result]);
-        $this->load($this->tree);
-
-        return [
-            'data' => $result,
-            'meta' => $this->meta,
-        ];
     }
 
     public function parsePagination(LengthAwarePaginator $paginate)
@@ -292,4 +281,13 @@ abstract class Resource
             $resource = $resource->parentResource;
         }
     }
+
+    public function toArray()
+    {
+        return [
+            'data' => $this->data->toArray(),
+            'meta' => $this->meta,
+        ];
+    }
+
 }
