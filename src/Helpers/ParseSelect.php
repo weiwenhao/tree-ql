@@ -4,11 +4,19 @@ namespace Weiwenhao\Including\Helpers;
 
 trait ParseSelect
 {
-    public function scopeParseSelect($builder, $resource)
+    public function scopeParseSelect($builder, $resource = null)
     {
-        if (is_string($resource)) {
+        if ($resource) {
+            if (is_string($resource)) {
+                $resource = new $resource;
+            }
+        } else {
+            $resource = config('including.resource_namespace') .
+                studly_case(str_singular($this->getTable()) .'_resource');
+
             $resource = new $resource;
         }
+
 
         $include = $resource::getParsedInclude();
         $columns = $resource->getBaseColumns();

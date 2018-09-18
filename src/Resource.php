@@ -30,7 +30,7 @@ abstract class Resource implements Arrayable
 
     // 手动处理
     protected $includeMeta = [];
-    protected $includeOther = [];
+    protected $includeEach = [];
 
     private $builder;
 
@@ -54,6 +54,13 @@ abstract class Resource implements Arrayable
     {
         return $this->baseColumns;
     }
+
+
+    public static function make($data)
+    {
+        return self::parse($data);
+    }
+
     /**
      * limit 使用get
      * per_page 使用paginate
@@ -69,7 +76,7 @@ abstract class Resource implements Arrayable
     {
         $resource = new static();
 
-        // 分布处理
+        // 分情况处理
         if ($data instanceof Model) {
             $resource->setCollection(Collection::make([$data]));
         } elseif ($data instanceof Collection) {
@@ -96,7 +103,7 @@ abstract class Resource implements Arrayable
             'resource' => $this,
             'columns' => $this->baseColumns,
             'meta' => [],
-            'other' => [],
+            'each' => [],
             'relations' => []
         ];
 
@@ -111,8 +118,8 @@ abstract class Resource implements Arrayable
                 $tree['columns'][] = $name;
             } elseif (in_array($name, $this->includeMeta, true)) {
                 $tree['meta'][] = $name;
-            } elseif (in_array($name, $this->includeOther, true)) {
-                $tree['other'][] = $name;
+            } elseif (in_array($name, $this->includeEach, true)) {
+                $tree['each'][] = $name;
             } elseif (isset($this->includeRelations[$name])) {
                 $class = $this->includeRelations[$name]['resource'];
                 $resource = new $class();
@@ -237,8 +244,8 @@ abstract class Resource implements Arrayable
 
             $this->setCollection(Collection::make($collection->pluck($relationName)->flatten()));
 
-            // other and callback
-            $this->loadOther($constraint['other']);
+            // each and callback
+            $this->loadEach($constraint['each']);
         }
 
 
@@ -254,9 +261,9 @@ abstract class Resource implements Arrayable
         }
     }
 
-    protected function loadOther($other)
+    protected function loadEach($each)
     {
-        foreach ($other as $name) {
+        foreach ($each as $name) {
             foreach ($this->getCollection() as $item) {
                 try {
                     $item->{$name} = $this->{camel_case($name)}($item);
@@ -285,7 +292,7 @@ abstract class Resource implements Arrayable
     public function toArray()
     {
         return [
-            'data' => $this->data->toArray(),
+            'data' => $this->data->attributesToArray(),
             'meta' => $this->meta,
         ];
     }
