@@ -18,7 +18,7 @@ trait ParseSelect
         }
 
 
-        $include = $resource->getParsedInclude();
+        $include = $resource->parseInclude(request('inlcude'));
         $columns = $resource->getBaseColumns();
         $includeColumns = $resource->getIncludeCoums();
 

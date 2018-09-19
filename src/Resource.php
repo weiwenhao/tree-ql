@@ -64,15 +64,17 @@ abstract class Resource implements Arrayable
      * @param null $builder
      * @return $this
      */
-    public static function make($data)
+    public static function make($data, $include = null)
     {
         $resource = new static();
 
         // 分情况处理
         if ($data instanceof Model) {
             $resource->setCollection(Collection::make([$data]));
+
         } elseif ($data instanceof Collection) {
             $resource->setCollection($data);
+
         } elseif ($data instanceof LengthAwarePaginator) {
             $resource->meta['pagination'] = $resource->parsePagination($data);
             $data = $data->getCollection();
@@ -82,7 +84,7 @@ abstract class Resource implements Arrayable
 
         $resource->data = $data;
 
-        $parsedInclude = $resource->getParsedInclude();
+        $parsedInclude = $resource->parseInclude($include ?? request('include'));
         $resource->tree = $resource->structureTree($parsedInclude);
 
         $resource->load($resource->tree);
@@ -142,12 +144,6 @@ abstract class Resource implements Arrayable
         $this->includeRelations = $temp;
     }
 
-    public function getParsedInclude()
-    {
-        return $this->parseInclude(request('include'));
-    }
-
-
     /**
      * 'article.user,comments{liked,name,user.followed},product'
      *
@@ -169,7 +165,7 @@ abstract class Resource implements Arrayable
      * @param null $startToken
      * @return array
      */
-    private function parseInclude($string, $startToken = null, $offset = 0)
+    public function parseInclude($string, $startToken = null, $offset = 0)
     {
         $temp = [];
         $array = [];
@@ -205,7 +201,8 @@ abstract class Resource implements Arrayable
             'total' => $paginate->total(),
             'current' => $paginate->currentPage(),
             'next' => $paginate->nextPageUrl(),
-            'previous' => $paginate->previousPageUrl()
+            'previous' => $paginate->previousPageUrl(),
+            'last' => $paginate->lastPage(),
         ];
     }
 
