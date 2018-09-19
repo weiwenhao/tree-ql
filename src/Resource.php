@@ -15,9 +15,8 @@ use Weiwenhao\Including\Exceptions\IteratorContinueException;
 
 abstract class Resource implements Arrayable
 {
+    // to array
     private $meta = [];
-
-
     private $data = null;
 
     // 数据初始化
@@ -25,7 +24,6 @@ abstract class Resource implements Arrayable
 
     // 自动处理
     protected $includeColumns = [];
-
     protected $includeRelations = [];
 
     // 手动处理
@@ -42,7 +40,7 @@ abstract class Resource implements Arrayable
 
     public $parentResource = null;
 
-    protected static $parsedInclude;
+    protected $parsedInclude;
 
 
     public function getIncludeCoums()
@@ -53,12 +51,6 @@ abstract class Resource implements Arrayable
     public function getBaseColumns()
     {
         return $this->baseColumns;
-    }
-
-
-    public static function make($data)
-    {
-        return self::parse($data);
     }
 
     /**
@@ -72,7 +64,7 @@ abstract class Resource implements Arrayable
      * @param null $builder
      * @return $this
      */
-    public static function parse($data)
+    public static function make($data)
     {
         $resource = new static();
 
@@ -89,7 +81,8 @@ abstract class Resource implements Arrayable
         }
 
         $resource->data = $data;
-        $parsedInclude = static::getParsedInclude();
+
+        $parsedInclude = $resource->getParsedInclude();
         $resource->tree = $resource->structureTree($parsedInclude);
 
         $resource->load($resource->tree);
@@ -97,7 +90,7 @@ abstract class Resource implements Arrayable
         return $resource;
     }
 
-    public function structureTree(array $include)
+    protected function structureTree(array $include)
     {
         $tree = [
             'resource' => $this,
@@ -127,10 +120,10 @@ abstract class Resource implements Arrayable
             }
         }
 
-            return $tree;
+        return $tree;
     }
 
-    public function formatIncludeConfig()
+    protected function formatIncludeConfig()
     {
         $temp = [];
         foreach ($this->includeRelations as $name => $constraint) {
@@ -149,13 +142,9 @@ abstract class Resource implements Arrayable
         $this->includeRelations = $temp;
     }
 
-    public static function getParsedInclude()
+    public function getParsedInclude()
     {
-        if (!static::$parsedInclude) {
-            static::$parsedInclude = static::parseInclude(request('include'));
-        }
-
-        return static::$parsedInclude;
+        return $this->parseInclude(request('include'));
     }
 
 
@@ -180,9 +169,8 @@ abstract class Resource implements Arrayable
      * @param null $startToken
      * @return array
      */
-    private static function parseInclude($string, $startToken = null)
+    private function parseInclude($string, $startToken = null, $offset = 0)
     {
-        static $offset = 0;
         $temp = [];
         $array = [];
 
@@ -198,7 +186,7 @@ abstract class Resource implements Arrayable
 
             // 解析
             if (in_array($char, ['.', '{'], true)) { // 入栈
-                $array[implode('', $temp)] = static::parseInclude($string, $char);
+                $array[implode('', $temp)] = $this->parseInclude($string, $char, $offset);
                 $temp = [];
             } elseif ($char === '}' || ($char === ',' && $startToken === '.')) { // 出栈
                 return $array;
@@ -206,6 +194,7 @@ abstract class Resource implements Arrayable
         }
 
         $temp && $array[] = implode('', $temp);
+
         return $array;
     }
 
@@ -243,11 +232,10 @@ abstract class Resource implements Arrayable
             }]);
 
             $this->setCollection(Collection::make($collection->pluck($relationName)->flatten()));
-
-            // each and callback
-            $this->loadEach($constraint['each']);
         }
 
+        // each and callback
+        $this->loadEach($constraint['each']);
 
         // 加载meta
         foreach ($constraint['meta'] as $name) {
@@ -289,12 +277,16 @@ abstract class Resource implements Arrayable
         }
     }
 
+    public function getData()
+    {
+        return $this->data;
+    }
+
     public function toArray()
     {
         return [
-            'data' => $this->data->attributesToArray(),
+            'data' => $this->getData()->toArray(),
             'meta' => $this->meta,
         ];
     }
-
 }
