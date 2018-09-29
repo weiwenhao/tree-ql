@@ -2,56 +2,39 @@
 
 namespace Weiwenhao\Including;
 
-use App\Resources\ProductVariantResource;
 use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Contracts\Support\Jsonable;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Config;
-use Weiwenhao\Including\Exceptions\IteratorBreakException;
-use Weiwenhao\Including\Exceptions\IteratorContinueException;
+use Weiwenhao\Including\Helpers\Format;
+use Weiwenhao\Including\Helpers\Load;
+use Weiwenhao\Including\Helpers\Parse;
+use Weiwenhao\Including\Helpers\Tree;
 
 abstract class Resource implements Arrayable
 {
+    use Parse, Tree, Format, Load;
+
     // to array
     private $meta = [];
-    private $data = null;
+    private $data;
 
-    // 数据初始化
     protected $baseColumns = [];
 
-    // 自动处理
     protected $includeColumns = [];
     protected $includeRelations = [];
-
-    // 手动处理
     protected $includeMeta = [];
     protected $includeEach = [];
 
-    private $builder;
 
-    public $tree;
+    private $tree;
 
     private $collection;
 
+    private $parentResource;
 
+    private $parsedInclude;
 
-    public $parentResource = null;
-
-    protected $parsedInclude;
-
-
-    public function getIncludeCoums()
-    {
-        return $this->includeColumns;
-    }
-
-    public function getBaseColumns()
-    {
-        return $this->baseColumns;
-    }
 
     /**
      * limit 使用get
@@ -61,7 +44,8 @@ abstract class Resource implements Arrayable
      *
      * UserResource::parse();
      * UserResource::parse()->get();
-     * @param null $builder
+     * @param $data
+     * @param null $include
      * @return $this
      */
     public static function make($data, $include = null)
@@ -71,10 +55,8 @@ abstract class Resource implements Arrayable
         // 分情况处理
         if ($data instanceof Model) {
             $resource->setCollection(Collection::make([$data]));
-
         } elseif ($data instanceof Collection) {
             $resource->setCollection($data);
-
         } elseif ($data instanceof LengthAwarePaginator) {
             $resource->meta['pagination'] = $resource->parsePagination($data);
             $data = $data->getCollection();
@@ -85,113 +67,12 @@ abstract class Resource implements Arrayable
         $resource->data = $data;
 
         $parsedInclude = $resource->parseInclude($include ?? request('include'));
-        $resource->tree = $resource->structureTree($parsedInclude);
+
+        $resource->tree = $resource->build($parsedInclude);
 
         $resource->load($resource->tree);
 
         return $resource;
-    }
-
-    protected function structureTree(array $include)
-    {
-        $tree = [
-            'resource' => $this,
-            'columns' => $this->baseColumns,
-            'meta' => [],
-            'each' => [],
-            'relations' => []
-        ];
-
-        $this->formatIncludeConfig();
-
-        foreach ($include as $name => $constraint) {
-            if (is_numeric($name)) {
-                $name = $constraint;
-            }
-
-            if (in_array($name, $this->includeColumns, true)) {
-                $tree['columns'][] = $name;
-            } elseif (in_array($name, $this->includeMeta, true)) {
-                $tree['meta'][] = $name;
-            } elseif (in_array($name, $this->includeEach, true)) {
-                $tree['each'][] = $name;
-            } elseif (isset($this->includeRelations[$name])) {
-                $class = $this->includeRelations[$name]['resource'];
-                $resource = new $class();
-                $tree['relations'][$name] = $resource->structureTree(is_array($constraint) ? $constraint : []);
-            }
-        }
-
-        return $tree;
-    }
-
-    protected function formatIncludeConfig()
-    {
-        $temp = [];
-        foreach ($this->includeRelations as $name => $constraint) {
-            if (is_numeric($name)) {
-                $name = $constraint;
-                $constraint = [];
-            }
-
-            if (!isset($constraint['resource'])) {
-                $constraint['resource'] = config('including.resource_namespace', "App\\Resources\\")
-                    . studly_case(str_singular($name).'_resource');
-            }
-
-            $temp[$name] = $constraint;
-        }
-        $this->includeRelations = $temp;
-    }
-
-    /**
-     * 'article.user,comments{liked,name,user.followed},product'
-     *
-     * ↓ ↓
-     * [
-     *    'article' => [
-     *          'user'
-     *     ],
-     *    'comments' => [
-     *          'liked',
-     *          'name',
-     *          'user' => [
-     *              'followed'
-     *          ]
-     *     ],
-     *     'product'
-     * ]
-     * @param $string
-     * @param null $startToken
-     * @return array
-     */
-    public function parseInclude($string, $startToken = null, $offset = 0)
-    {
-        $temp = [];
-        $array = [];
-
-        while (isset($string[$offset]) && $char = $string[$offset++]) {
-            // symbol 分词
-            if (in_array($char, [',', '}'], true)) {
-                $temp && $array[] = implode('', $temp);
-                $temp = [];
-            } else {
-                !in_array($char, ['.', '{']) && $temp[] = $char;
-            }
-
-
-            // 解析
-            if (in_array($char, ['.', '{'], true)) { // 入栈
-                $array[implode('', $temp)] = $this->parseInclude($string, $char, $offset);
-                $temp = [];
-            } elseif ($char === '}' || ($char === ',' && $startToken === '.')) { // 出栈
-                return $array;
-            }
-        }
-
-        $temp && $array[] = implode('', $temp);
-
-        return $array;
     }
 
     public function parsePagination(LengthAwarePaginator $paginate)
@@ -206,84 +87,147 @@ abstract class Resource implements Arrayable
         ];
     }
 
+    /**
+     * @return array
+     */
+    public function getParsedInclude(): array
+    {
+        return $this->parsedInclude;
+    }
+
+    /**
+     * @param mixed $parsedInclude
+     */
+    public function setParsedInclude($parsedInclude): void
+    {
+        $this->parsedInclude = $parsedInclude;
+    }
+
+    /**
+     * @return array
+     */
+    public function getIncludeColumns(): array
+    {
+        return $this->includeColumns;
+    }
+
+    /**
+     * @param array $includeColumns
+     */
+    public function setIncludeColumns(array $includeColumns): void
+    {
+        $this->includeColumns = $includeColumns;
+    }
+
+    /**
+     * @return array
+     */
+    public function getIncludeRelations(): array
+    {
+        return $this->includeRelations;
+    }
+
+    /**
+     * @param array $includeRelations
+     */
+    public function setIncludeRelations(array $includeRelations): void
+    {
+        $this->includeRelations = $includeRelations;
+    }
+
+    /**
+     * @return array
+     */
+    public function getIncludeMeta(): array
+    {
+        return $this->includeMeta;
+    }
+
+    /**
+     * @param array $includeMeta
+     */
+    public function setIncludeMeta(array $includeMeta): void
+    {
+        $this->includeMeta = $includeMeta;
+    }
+
+    /**
+     * @return array
+     */
+    public function getIncludeEach(): array
+    {
+        return $this->includeEach;
+    }
+
+    /**
+     * @param array $includeEach
+     */
+    public function setIncludeEach(array $includeEach): void
+    {
+        $this->includeEach = $includeEach;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getCollection()
     {
         return $this->collection;
     }
 
-    public function setCollection(Collection $collection)
+    /**
+     * @param mixed $collection
+     */
+    public function setCollection($collection): void
     {
-        return $this->collection = $collection;
+        $this->collection = $collection;
     }
 
-    public function load($constraint, $relationName = null, $parentResource = null)
+    /**
+     * @return mixed
+     */
+    public function getTree()
     {
-        // 记录parent
+        return $this->tree;
+    }
+
+    /**
+     * @param mixed $tree
+     */
+    public function setTree($tree): void
+    {
+        $this->tree = $tree;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getParentResource()
+    {
+        return $this->parentResource;
+    }
+
+    /**
+     * @param mixed $parentResource
+     */
+    public function setParentResource($parentResource): void
+    {
         $this->parentResource = $parentResource;
-
-        // 加载父级需要的在下的关联
-        if ($parentResource) {
-            $collection = $parentResource->getCollection();
-            $collection->loadMissing([$relationName => function ($builder) use ($constraint) {
-                $builder->addSelect($constraint['columns']);
-            }]);
-
-            $this->setCollection(Collection::make($collection->pluck($relationName)->flatten()));
-        }
-
-        // each and callback
-        $this->loadEach($constraint['each']);
-
-        // 加载meta
-        foreach ($constraint['meta'] as $name) {
-            $this->getRootResource()->meta[$name] = $this->{camel_case($name)}();
-        }
-
-        // 交出控制权
-        foreach ($constraint['relations'] as $name => $constraint) {
-            $childResource = $constraint['resource'];
-            $childResource->load($constraint, $name, $this);
-        }
     }
 
-    protected function loadEach($each)
+    /**
+     * @return array
+     */
+    public function getBaseColumns(): array
     {
-        foreach ($each as $name) {
-            foreach ($this->getCollection() as $item) {
-                try {
-                    $item->{$name} = $this->{camel_case($name)}($item);
-                } catch (IteratorContinueException $e) {
-                    continue;
-                } catch (IteratorBreakException $e) {
-                    break;
-                }
-            }
-        }
+        return $this->baseColumns;
     }
 
-    public function getRootResource()
+    /**
+     * @param array $baseColumns
+     */
+    public function setBaseColumns(array $baseColumns): void
     {
-        $resource = $this;
-
-        while (true) {
-            if (!$resource->parentResource) {
-                return $resource;
-            }
-
-            $resource = $resource->parentResource;
-        }
-    }
-
-    public function getData()
-    {
-        return $this->data;
-    }
-
-    public function toArray()
-    {
-        return [
-            'data' => $this->getData()->toArray(),
-            'meta' => $this->meta,
-        ];
+        $this->baseColumns = $baseColumns;
     }
 }
