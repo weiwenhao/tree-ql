@@ -26,12 +26,12 @@ trait Tree
             try {
                 if (in_array($name, $this->includeColumns, true)) {
                     // callback
-                    $this->{camel_case($name)}();
+                    method_exists($this, camel_case($name)) && $this->{camel_case($name)}();
 
                     $tree['columns'][] = $name;
                 } elseif (isset($this->includeRelations[$name])) {
                     // callback
-                    $this->{camel_case($name)}();
+                    method_exists($this, camel_case($name)) && $this->{camel_case($name)}();
 
                     $class = $this->includeRelations[$name]['resource'];
                     $resource = new $class();

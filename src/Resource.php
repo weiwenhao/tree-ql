@@ -15,18 +15,16 @@ abstract class Resource implements Arrayable
 {
     use Parse, Tree, Format, Load;
 
-    // to array
-    private $meta = [];
-    private $data;
+
 
     protected $baseColumns = [];
-
     protected $includeColumns = [];
     protected $includeRelations = [];
     protected $includeMeta = [];
     protected $includeEach = [];
 
-
+    private $meta = [];
+    private $data;
     private $tree;
 
     private $collection;
@@ -46,7 +44,7 @@ abstract class Resource implements Arrayable
      * UserResource::parse()->get();
      * @param $data
      * @param null $include
-     * @return $this
+     * @return Resource
      */
     public static function make($data, $include = null)
     {
@@ -75,7 +73,7 @@ abstract class Resource implements Arrayable
         return $resource;
     }
 
-    public function parsePagination(LengthAwarePaginator $paginate)
+    private function parsePagination(LengthAwarePaginator $paginate)
     {
         return [
             'per_page' => $paginate->perPage(),
@@ -229,5 +227,37 @@ abstract class Resource implements Arrayable
     public function setBaseColumns(array $baseColumns): void
     {
         $this->baseColumns = $baseColumns;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getData()
+    {
+        return $this->data;
+    }
+
+    /**
+     * @param mixed $data
+     */
+    public function setData($data): void
+    {
+        $this->data = $data;
+    }
+
+    /**
+     * @return array
+     */
+    public function getMeta(): array
+    {
+        return $this->meta;
+    }
+
+    /**
+     * @param array $meta
+     */
+    public function setMeta(array $meta): void
+    {
+        $this->meta = $meta;
     }
 }
