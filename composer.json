@@ -36,7 +36,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Weiwenhao\\Including\\Providers\\IncludesServiceProvider"
+                "Weiwenhao\\Including\\Providers\\IncludingServiceProvider"
             ]
         }
     }
