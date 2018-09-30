@@ -15,6 +15,7 @@ trait Load
         // load relation
         if ($parentResource) {
             $collection = $parentResource->getCollection();
+
             $collection->loadMissing([$relationName => function ($builder) use ($constraint) {
                 $builder->addSelect($constraint['columns']);
             }]);
