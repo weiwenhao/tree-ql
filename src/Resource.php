@@ -67,7 +67,6 @@ abstract class Resource implements Arrayable
         $parsedInclude = $resource->parseInclude($include ?? request('include'));
         $resource->tree = $resource->build($parsedInclude);
         $resource->load($resource->tree);
-
         return $resource;
     }
 
