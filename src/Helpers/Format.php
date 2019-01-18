@@ -13,8 +13,8 @@ trait Format
     public function toArray()
     {
         return [
-            'data' => $this->dataToArray($this->getData(), $this->getTree()),
-            'meta' => $this->meta,
+            'data' => $this->dataToArray($this->getResponseData(), $this->getTree()),
+            'meta' => $this->getResponseMeta(),
         ];
     }
 
@@ -29,8 +29,8 @@ trait Format
         } else {
             $attributes = array_merge($tree['columns'], $tree['each']);
 
-            foreach ($attributes as $attribute) {
-                $temp[$attribute] = $data->{$attribute};
+            foreach ($attributes as $name => $constraint) {
+                $temp[$name] = $data->{$name};
             }
 
             foreach ($tree['relations'] as $attribute => $tree) {

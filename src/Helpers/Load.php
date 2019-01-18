@@ -11,13 +11,18 @@ trait Load
     public function load($constraint, $relationName = null, $parentResource = null)
     {
         $this->parentResource = $parentResource;
+        // TODO before callback
 
         // load relation
         if ($parentResource) {
             $collection = $parentResource->getCollection();
 
+            // post collection load comment. so use comment params
             $collection->loadMissing([$relationName => function ($builder) use ($constraint) {
-                $builder->addSelect($constraint['columns']);
+                // TODO builder callback pass params
+                $builder->addSelect(array_keys($constraint['columns']));
+
+//                method_exists($this, 'builder') && $this->builder($builder, $constraint['params']);
             }]);
 
             $this->setCollection(Collection::make($collection->pluck($relationName)->flatten()));
@@ -27,19 +32,16 @@ trait Load
         $this->loadEach($constraint['each']);
 
         // load meta
-        foreach ($constraint['meta'] as $name) {
-            try {
-                $this->getRootResource()->meta[$name] = $this->{camel_case($name)}();
-            } catch (IncludeDeniedException $e) {
-                continue;
-            }
-        }
+        $this->loadMeta($constraint['meta']);
+
 
         // into next
         foreach ($constraint['relations'] as $name => $constraint) {
-            $childResource = $constraint['resource'];
-            $childResource->load($constraint, $name, $this);
+            $resource = $constraint['resource'];
+            $resource->load($constraint, $name, $this);
         }
+
+        // TODO after callback
     }
 
     /**
@@ -48,20 +50,32 @@ trait Load
      */
     protected function loadEach($each)
     {
-        foreach ($each as $name) {
-            if (method_exists($this, camel_case($name))) {
+        foreach ($each as $name => $constraint) {
+            if (!method_exists($this, camel_case($name))) {
                 continue;
             }
 
             foreach ($this->getCollection() as $item) {
                 try {
-                    $item->{$name} = $this->{camel_case($name)}($item);
+                    // callback
+                    $item->{$name} = $this->{camel_case($name)}($item, $constraint['params'] ?? null);
                 } catch (IncludeDeniedException $e) {
                     break;
                 } catch (IteratorBreakException $e) {
                     $item->{$name} = $e->getData();
                     break;
                 }
+            }
+        }
+    }
+
+    protected function loadMeta($meta)
+    {
+        foreach ($meta as $name => $constraint) {
+            try {
+                $this->getRootResource()->responseMeta[$name] = $this->{camel_case($name)}($constraint['params'] ?? null);
+            } catch (IncludeDeniedException $e) {
+                continue;
             }
         }
     }

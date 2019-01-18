@@ -15,16 +15,17 @@ abstract class Resource implements Arrayable
 {
     use Parse, Tree, Format, Load;
 
+    protected $default = [];
+    protected $columns = [];
+    protected $relations = [];
+    protected $meta = [];
+    protected $each = [];
 
+    private $params;
 
-    protected $baseColumns = [];
-    protected $includeColumns = [];
-    protected $includeRelations = [];
-    protected $includeMeta = [];
-    protected $includeEach = [];
+    private $responseMeta = [];
+    private $responseData;
 
-    private $meta = [];
-    private $data;
     private $tree;
 
     private $collection;
@@ -32,6 +33,8 @@ abstract class Resource implements Arrayable
     private $parentResource;
 
     private $parsedInclude;
+
+    private $dataType;
 
 
     /**
@@ -52,21 +55,28 @@ abstract class Resource implements Arrayable
 
         // 分情况处理
         if ($data instanceof Model) {
+            $resource->dataType = 'model';
             $resource->setCollection(Collection::make([$data]));
         } elseif ($data instanceof Collection) {
+            $resource->dataType = 'collection';
             $resource->setCollection($data);
         } elseif ($data instanceof LengthAwarePaginator) {
+            $resource->dataType = 'pagination';
             $resource->meta['pagination'] = $resource->parsePagination($data);
+
             $data = $data->getCollection();
 
             $resource->setCollection($data);
         }
 
-        $resource->data = $data;
+        $resource->setResponseData($data);
 
         $parsedInclude = $resource->parseInclude($include ?? request('include'));
+
         $resource->tree = $resource->build($parsedInclude);
+
         $resource->load($resource->tree);
+
         return $resource;
     }
 
@@ -98,69 +108,6 @@ abstract class Resource implements Arrayable
         $this->parsedInclude = $parsedInclude;
     }
 
-    /**
-     * @return array
-     */
-    public function getIncludeColumns(): array
-    {
-        return $this->includeColumns;
-    }
-
-    /**
-     * @param array $includeColumns
-     */
-    public function setIncludeColumns(array $includeColumns): void
-    {
-        $this->includeColumns = $includeColumns;
-    }
-
-    /**
-     * @return array
-     */
-    public function getIncludeRelations(): array
-    {
-        return $this->includeRelations;
-    }
-
-    /**
-     * @param array $includeRelations
-     */
-    public function setIncludeRelations(array $includeRelations): void
-    {
-        $this->includeRelations = $includeRelations;
-    }
-
-    /**
-     * @return array
-     */
-    public function getIncludeMeta(): array
-    {
-        return $this->includeMeta;
-    }
-
-    /**
-     * @param array $includeMeta
-     */
-    public function setIncludeMeta(array $includeMeta): void
-    {
-        $this->includeMeta = $includeMeta;
-    }
-
-    /**
-     * @return array
-     */
-    public function getIncludeEach(): array
-    {
-        return $this->includeEach;
-    }
-
-    /**
-     * @param array $includeEach
-     */
-    public function setIncludeEach(array $includeEach): void
-    {
-        $this->includeEach = $includeEach;
-    }
 
     /**
      * @return mixed
@@ -210,36 +157,78 @@ abstract class Resource implements Arrayable
         $this->parentResource = $parentResource;
     }
 
+
     /**
      * @return array
      */
-    public function getBaseColumns(): array
+    public function getDefault(): array
     {
-        return $this->baseColumns;
+        return $this->default;
     }
 
     /**
-     * @param array $baseColumns
+     * @param array $default
      */
-    public function setBaseColumns(array $baseColumns): void
+    public function setDefault(array $default): void
     {
-        $this->baseColumns = $baseColumns;
+        $this->default = $default;
     }
 
     /**
-     * @return mixed
+     * @return array
      */
-    public function getData()
+    public function getColumns(): array
     {
-        return $this->data;
+        $temp = [];
+        foreach ($this->columns as $key => $value) {
+            if (is_numeric($key)) {
+                $key = $value;
+                $value = [];
+            }
+
+            $temp[$key] = $value;
+        }
+
+        return $temp;
     }
 
     /**
-     * @param mixed $data
+     * @param array $columns
      */
-    public function setData($data): void
+    public function setColumns(array $columns): void
     {
-        $this->data = $data;
+        $this->columns = $columns;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRelations(): array
+    {
+        $temp = [];
+        foreach ($this->relations as $name => $constraint) {
+            if (is_numeric($name)) {
+                $name = $constraint;
+                $constraint = [];
+            }
+
+            if (!isset($constraint['resource'])) {
+                $constraint['resource'] = config('including.resource_namespace', "App\\Resources\\")
+                    . studly_case(str_singular($name) . '_resource');
+            }
+
+            $temp[$name] = $constraint;
+        }
+
+        return $temp;
+    }
+
+    /**
+     * @param array $relations
+     */
+    public function setRelations(array $relations): void
+    {
+        $this->relations = $relations;
     }
 
     /**
@@ -247,7 +236,17 @@ abstract class Resource implements Arrayable
      */
     public function getMeta(): array
     {
-        return $this->meta;
+        $temp = [];
+        foreach ($this->meta as $key => $value) {
+            if (is_numeric($key)) {
+                $key = $value;
+                $value = [];
+            }
+
+            $temp[$key] = $value;
+        }
+
+        return $temp;
     }
 
     /**
@@ -256,5 +255,66 @@ abstract class Resource implements Arrayable
     public function setMeta(array $meta): void
     {
         $this->meta = $meta;
+    }
+
+    /**
+     * @return array
+     */
+    public function getEach(): array
+    {
+        $temp = [];
+        foreach ($this->each as $key => $value) {
+            if (is_numeric($key)) {
+                $key = $value;
+                $value = [];
+            }
+
+            $temp[$key] = $value;
+        }
+
+        return $temp;
+    }
+
+    /**
+     * @param array $each
+     */
+    public function setEach(array $each): void
+    {
+        $this->each = $each;
+    }
+
+
+
+
+    /**
+     * @return array
+     */
+    public function getResponseMeta(): array
+    {
+        return $this->responseMeta;
+    }
+
+    /**
+     * @param array $responseMeta
+     */
+    public function setResponseMeta(array $responseMeta): void
+    {
+        $this->responseMeta = $responseMeta;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getResponseData()
+    {
+        return $this->responseData;
+    }
+
+    /**
+     * @param mixed $responseData
+     */
+    public function setResponseData($responseData): void
+    {
+        $this->responseData = $responseData;
     }
 }

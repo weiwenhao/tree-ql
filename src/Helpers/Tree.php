@@ -6,79 +6,86 @@ use Weiwenhao\Including\Exceptions\IncludeDeniedException;
 
 trait Tree
 {
+    /**
+     * 语义化
+     * @param array $include
+     * @return array
+     */
     protected function build(array $include)
     {
+        $columns = $this->getColumns();
+        $relations = $this->getRelations();
+        $meta = $this->getMeta();
+        $each = $this->getEach();
+
         $tree = [
             'resource' => $this,
-            'columns' => $this->baseColumns,
-            'meta' => [],
-            'each' => [],
-            'relations' => []
+            'columns' => $this->parseDefault($columns),
+            'meta' => $this->parseDefault($meta),
+            'each' => $this->parseDefault($each),
+            'relations' => $this->parseDefault($relations)
         ];
 
-        $this->includeRelations = $this->structureIncludeRelations($this->includeRelations);
 
         foreach ($include as $name => $constraint) {
             if (is_numeric($name)) {
                 $name = $constraint;
+                $constraint = [];
             }
 
-            try {
-                if (in_array($name, $this->includeColumns, true)) {
-                    // callback
-                    method_exists($this, camel_case($name)) && $this->{camel_case($name)}();
+            if (isset($relations[$name])) {
+                $temp = $relations[$name];
 
-                    $tree['columns'][] = $name;
-                } elseif (isset($this->includeRelations[$name])) {
-                    // callback
-                    method_exists($this, camel_case($name)) && $this->{camel_case($name)}();
-
-                    $class = $this->includeRelations[$name]['resource'];
-                    $resource = new $class();
-                    $tree['relations'][$name] = $resource->build(is_array($constraint) ? $constraint : []);
-                } elseif (in_array($name, $this->includeMeta, true)) {
-                    $tree['meta'][] = $name;
-                } elseif (in_array($name, $this->includeEach, true)) {
-                    $tree['each'][] = $name;
+                if (isset($constraint['params'])) {
+                    $temp['params'] = $constraint['params'];
                 }
-            } catch (IncludeDeniedException $e) {
-                continue;
+
+                $class = $relations[$name]['resource'];
+                $resource = new $class();
+
+                $temp = array_merge($temp, $resource->build(is_array($constraint) ? $constraint : []));
+
+                $tree['relations'][$name] = $temp;
+
+            } else {
+                isset($columns[$name]) && $key = 'columns';
+                isset($meta[$name]) && $key = 'meta';
+                isset($each[$name]) && $key = 'each';
+
+                if (!isset($key)) {
+                    continue;
+                }
+
+                $temp = ${$key}[$name];
+
+                if (isset($constraint['params'])) {
+                    $temp['params'] = $constraint['params'];
+                }
+
+                $tree[$key][$name] = $temp;
             }
         }
 
         return $tree;
     }
 
-
-    /**
-     * ['user', 'posts']
-     *
-     * [
-     *      'user' => [
-     *          'resource' => xxx
-     *      ],
-     *      'posts' => [
-     *          'resource' => xxx
-     *      ]
-     * ]
-     */
-    protected function structureIncludeRelations($relations)
+    protected function parseDefault($data)
     {
+        $default = $this->getDefault();
         $temp = [];
-        foreach ($relations as $name => $constraint) {
+
+        foreach ($data as $name => $constraint) {
             if (is_numeric($name)) {
                 $name = $constraint;
                 $constraint = [];
             }
 
-            if (!isset($constraint['resource'])) {
-                $constraint['resource'] = config('including.resource_namespace', "App\\Resources\\")
-                    . studly_case(str_singular($name).'_resource');
+            if (in_array($name, $default)) {
+                $temp[$name] = $constraint;
             }
-
-            $temp[$name] = $constraint;
         }
 
         return $temp;
     }
+
 }
