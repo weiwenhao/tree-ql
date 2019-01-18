@@ -1,6 +1,6 @@
 <?php
 
-namespace Weiwenhao\Including\Exceptions;
+namespace Weiwenhao\TreeQL\Exceptions;
 
 use Throwable;
 

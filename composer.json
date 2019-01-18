@@ -1,12 +1,12 @@
 {
-    "name": "weiwenhao/including",
-    "description": "state machine",
-    "keywords": ["including", "api", "laravel"],
+    "name": "weiwenhao/tree-ql",
+    "description": "laravel include",
+    "keywords": ["laravel", "include", "api", "tree-ql"],
     "license": "MIT",
     "type": "library",
     "support": {
-        "issues": "https://github.com/weiwenhao/including/issues",
-        "source": "https://github.com/weiwenhao/including"
+        "issues": "https://github.com/weiwenhao/tree-ql/issues",
+        "source": "https://github.com/weiwenhao/tree-ql"
     },
     "authors": [
         {
@@ -25,18 +25,18 @@
     },
     "autoload": {
         "psr-4": {
-            "Weiwenhao\\Including\\": "src/"
+            "Weiwenhao\\TreeQL\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Weiwenhao\\Including\\Tests\\": "tests/"
+            "Weiwenhao\\TreeQL\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Weiwenhao\\Including\\Providers\\IncludingServiceProvider"
+                "Weiwenhao\\TreeQL\\Providers\\TreeQLServiceProvider"
             ]
         }
     }

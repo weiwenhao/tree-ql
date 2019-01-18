@@ -1,6 +1,6 @@
 <?php
 
-namespace Weiwenhao\Including\Tests;
+namespace Weiwenhao\TreeQL\Tests;
 
 class TestCase extends \Orchestra\Testbench\TestCase
 {

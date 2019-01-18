@@ -1,8 +1,8 @@
 <?php
 
-namespace Weiwenhao\Including\Tests\Stubs;
+namespace Weiwenhao\TreeQL\Tests\Stubs;
 
-use Weiwenhao\Including\Resource;
+use Weiwenhao\TreeQL\Resource;
 
 class ExampleResource extends Resource
 {

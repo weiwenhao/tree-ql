@@ -1,6 +1,6 @@
 <?php
 
-namespace Weiwenhao\Including\Helpers;
+namespace Weiwenhao\TreeQL\Helpers;
 
 trait Parse
 {
@@ -80,6 +80,8 @@ trait Parse
             }
         }
 
+        // 结束清空$offset
+        $offset = 0;
         return $array;
     }
 

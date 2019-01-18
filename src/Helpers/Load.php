@@ -1,10 +1,10 @@
 <?php
 
-namespace Weiwenhao\Including\Helpers;
+namespace Weiwenhao\TreeQL\Helpers;
 
 use Illuminate\Database\Eloquent\Collection;
-use Weiwenhao\Including\Exceptions\IncludeDeniedException;
-use Weiwenhao\Including\Exceptions\IteratorBreakException;
+use Weiwenhao\TreeQL\Exceptions\IncludeDeniedException;
+use Weiwenhao\TreeQL\Exceptions\IteratorBreakException;
 
 trait Load
 {

@@ -1,9 +1,8 @@
 <?php
 
-namespace Weiwenhao\Including\Helpers;
+namespace Weiwenhao\TreeQL\Helpers;
 
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 
 trait Format
 {

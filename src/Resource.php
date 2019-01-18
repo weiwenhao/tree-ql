@@ -1,15 +1,15 @@
 <?php
 
-namespace Weiwenhao\Including;
+namespace Weiwenhao\TreeQL;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Weiwenhao\Including\Helpers\Format;
-use Weiwenhao\Including\Helpers\Load;
-use Weiwenhao\Including\Helpers\Parse;
-use Weiwenhao\Including\Helpers\Tree;
+use Weiwenhao\TreeQL\Helpers\Format;
+use Weiwenhao\TreeQL\Helpers\Load;
+use Weiwenhao\TreeQL\Helpers\Parse;
+use Weiwenhao\TreeQL\Helpers\Tree;
 
 abstract class Resource implements Arrayable
 {
@@ -62,7 +62,7 @@ abstract class Resource implements Arrayable
             $resource->setCollection($data);
         } elseif ($data instanceof LengthAwarePaginator) {
             $resource->dataType = 'pagination';
-            $resource->meta['pagination'] = $resource->parsePagination($data);
+            $resource->responseMeta['pagination'] = $resource->parsePagination($data);
 
             $data = $data->getCollection();
 

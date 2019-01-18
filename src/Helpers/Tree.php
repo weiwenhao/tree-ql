@@ -1,8 +1,8 @@
 <?php
 
-namespace Weiwenhao\Including\Helpers;
+namespace Weiwenhao\TreeQL\Helpers;
 
-use Weiwenhao\Including\Exceptions\IncludeDeniedException;
+use Weiwenhao\TreeQL\Exceptions\IncludeDeniedException;
 
 trait Tree
 {
@@ -69,7 +69,7 @@ trait Tree
         return $tree;
     }
 
-    protected function parseDefault($data)
+    public function parseDefault($data)
     {
         $default = $this->getDefault();
         $temp = [];
