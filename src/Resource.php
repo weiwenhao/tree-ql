@@ -28,6 +28,9 @@ abstract class Resource implements Arrayable
 
     private $tree;
 
+    /**
+     * @var Collection
+     */
     private $collection;
 
     private $parentResource;

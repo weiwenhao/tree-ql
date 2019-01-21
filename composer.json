@@ -14,7 +14,7 @@
             "email": "1101140857@qq.com"
         }
     ],
-    "minimum-stability": "dev",
+    "minimum-stability": "alpha",
     "require": {
         "php": ">=7.1.0",
         "illuminate/support": "5.5.*|5.6.*|5.7.*"
