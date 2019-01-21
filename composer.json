@@ -1,0 +1,43 @@
+{
+    "name": "weiwenhao/tree-ql",
+    "description": "laravel include",
+    "keywords": ["laravel", "include", "api", "tree-ql"],
+    "license": "MIT",
+    "type": "library",
+    "support": {
+        "issues": "https://github.com/weiwenhao/tree-ql/issues",
+        "source": "https://github.com/weiwenhao/tree-ql"
+    },
+    "authors": [
+        {
+            "name": "weiwenhao",
+            "email": "1101140857@qq.com"
+        }
+    ],
+    "minimum-stability": "alpha",
+    "require": {
+        "php": ">=7.1.0",
+        "illuminate/support": "5.5.*|5.6.*|5.7.*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7.2",
+        "mockery/mockery": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Weiwenhao\\TreeQL\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Weiwenhao\\TreeQL\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Weiwenhao\\TreeQL\\Providers\\TreeQLServiceProvider"
+            ]
+        }
+    }
+}
