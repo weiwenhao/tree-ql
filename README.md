@@ -1,6 +1,6 @@
 ## 什么是TreeQL
 
-tree-ql 希望能够从url中include你所需的资源,实现查询的所见既所得.
+tree-ql 是一个laravel扩展,希望能够从url中include你所需的资源,实现查询的所见既所得.
 
 ```json
 // http://api.test/posts/{slug}?include=content,user,comments  ↓
@@ -23,7 +23,7 @@ tree-ql 希望能够从url中include你所需的资源,实现查询的所见既�
             "post_id": 1,
             "like_count": 18,
             "reply_count": 9,
-            "floor": 303,
+            "floor": 303
           }
         ],
         "user": {
@@ -35,7 +35,7 @@ tree-ql 希望能够从url中include你所需的资源,实现查询的所见既�
 }
 ```
 
-深度使用
+更加深入的使用
 
 ```json
 // http://api.test/posts/{slug}?include=
@@ -126,23 +126,23 @@ tree-ql 希望能够从url中include你所需的资源,实现查询的所见既�
 
 确保你的laravel版本在5.5以上,在项目目录下执行
 
-`composer install weiwenhao/tree-ql`
+`composer require weiwenhao/tree-ql`
 
-
+> 该版本目前为alpha版本,不推荐用于商业生产环境,推荐用于个人项目
 
 ## 使用
 
-由于tree-ql是一个laravel的扩展包,接下来会从laravel的角度进行切入,实际上如果你熟悉 dingo/api的include,你会更加容易适应这种开发模式.
+由于tree-ql是一个laravel的扩展包,接下来会从laravel的角度进行切入,实际上如果你熟悉 dingo/api的include,你会更加适应这种开发模式.
 
 #### 我可以include什么东西?
 
-由于include所见即所得,我也可以换句话问,我的response中可以返回些什么数据?
+由于include所见即所得,因此可以换个提问方式,我的response中可以返回些什么数据?
 
-分析过后,我发现其可以分为4类数据既 columns,relations,each,meta. 
+response中的数据可以分为4类, 既 **columns,relations,each,meta.** 
 
-column 既我们数据库中的columns, 既 id,name,created_at,updated_at等
+columns 既我们数据库中的columns, 如 id,name,created_at,updated_at等
 
-relation 既关联资源, 比如post资源的relation有一对一的 user,一对多的 comments, 具体的定义都在laravel的orm中定义
+relations 既orm中的关联关系, 比如post资源的relation有一对一的 user,一对多的 comments, 具体的定义都在laravel的model中定义
 
 each 可以理解为没有存储在mysql中,由程序员计算得来的column, 其和column是平级的, 比如 一个user是否点赞了一篇post, 那么在我们的post的response中可能会见到这样的数据 ↓
 
@@ -154,7 +154,7 @@ each 可以理解为没有存储在mysql中,由程序员计算得来的column, �
             "slug": "quisquam-asperiores-est-necessitatibus-et.",
             "title": "Quisquam asperiores est necessitatibus et.",
             "description": "Officiis nihil sunt ut veritatis.",
-            "is_like": true, // 该字段由程序员计算得来, 没有也不能存储在数据库中
+            "is_like": true // 该字段由程序员计算得来, 没有也不能存储在数据库中
     	},
         {
             "id": 2,
@@ -181,7 +181,7 @@ meta 用来存储一些无法存储在data中的数据, 最典型的例子既分
       "comment_count": 8,
       "like_count": 14,
       "user_id": 2023
-    },
+    }
     // ...
   ],
   "meta": {
@@ -197,21 +197,17 @@ meta 用来存储一些无法存储在data中的数据, 最典型的例子既分
 }
 ```
 
-接下来看看在代码中如何在资源中定义这四种数据
-
-
+接下来看看如何在laravel中进行定义
 
 #### Resource的定义
 
-
-
-tree-ql默认使用app下的Resources目录, 我们所有的定义也将从该目录开始,我们可能会有这样的目录结构
+tree-ql默认使用app下的Resources目录, 因此可能会有这样的目录结构
 
 ![](http://asset.eienao.com/20190118180524.png)
 
 
 
-接下来看看PostResource中的定义
+接下来以PostResource为例
 
 ```php
 <?php
@@ -222,6 +218,9 @@ use Weiwenhao\TreeQL\Resource;
 
 class PostResource extends Resource
 {
+    /**
+    * 从下面的 columns/relations/meta/each中抽取得来
+    */
     protected $default = [
         'id',
         'slug',
@@ -276,13 +275,13 @@ class PostResource extends Resource
 
 Resource分为两部分, **类属性部分**用来进行定义,除了default外,其余部分 columns/relations/meta/each 中定义的value 都可以在include中被引入.
 
-而default中的定义则是从 columns/relations/meta/each 中已经定义的进行抽取,default中的key,会被默认include进来,而不需要再url中显式的定义.
+而default中的定义则是从 columns/relations/meta/each 中已经定义的value进行抽取,default中的key,会被默认include进来,而不需要再url中显式的定义.
 
 **方法部分** 目前的作用主要是回调函数, 且只有each和meta中定义的value 需要callback. callback命名的规则也很简单, 既将meta或者each中定义的值改为 小驼峰命名 作为方法名称即可.
 
-each的callback有两个参数, 第一个参数为一个item. 每一个resource下都有一个collection属性, 其中存放了该Resource下的资源数据, 该属性的类型为`Illuminate\Database\Eloquent\Collection` ,因此collection中的每一个item都会被callback一次, 所以 上面 isLike的第一个参数为 Collection中的一个item. 
+each的callback有两个参数,  每一个resource下都有一个collection属性, 其中存放了该Resource下的资源数据, 其类型为`Illuminate\Database\Eloquent\Collection` ,collection中的每一个item都会被callback一次, 所以 上面 isLike的第一个参数为 Collection中的一个item, item既model 
 
-> 在Resource中通过 getCollection可以获得该资源的数据
+> 在Resource中通过调用 $this->getCollection()可以获取所有的数据
 
 由于include支持params, 所以isLike的第二个参数为include中传递的params, 类型为array,格式为
 
@@ -293,13 +292,13 @@ $params = [
 ]
 ```
 
-回调return的值将会在response data中被原样展示
+callback 中 return的值将会在response data中被原样展示
 
 **关于meta**
 
-meta不同于each, 每个include meta在其生命周期中只会被调用一次.且只有一个参数 既params. 其return的值也将在response data中被原样展示
+meta不同于each, 每个include meta在其生命周期中只会被调用一次.且只有一个参数 既params. 其return的值也将在response meta中被原样展示
 
-meta的另一点时, 上面观察response data时你可能已经发现, 只有最外层的数据结构才能meta, 即
+meta的另一个特点时,只有最外层的数据结构才存在meta, 即
 
 ```json
 {
@@ -314,7 +313,9 @@ meta的另一点时, 上面观察response data时你可能已经发现, 只有�
 
 ```json
 {
-    data: {},
+    data: {
+        post: {}
+    },
     meta: {
         meta1: {},
         meta2: {}
@@ -326,7 +327,7 @@ meta的另一点时, 上面观察response data时你可能已经发现, 只有�
 
 
 
-**Columns** 中定义了orm select语句中可以被查询的数据,即会在这样的行为中使用columns中的定义
+**Columns** 中定义了orm select语句中可以被查询的数据,既类似这样的行为会使用columns
 
 ![](http://asset.eienao.com/20190121115105.png)
 
@@ -362,17 +363,13 @@ meta的另一点时, 上面观察response data时你可能已经发现, 只有�
     }
 ```
 
-上面的使用非常的简单, 唯一需要讲解的便是 columns() 这个构造器. 我不希望Post的查询一下查询出所有mysql中的column,而是根据url中include进行查询. 所以columns()会解析url中include并结合resource中的定义进行合适的select.
-
-
+上面的使用非常的简单, 唯一需要讲解的便是 columns() 这个查询构造器. 我不希望Post的查询一下查询出table中所有的column,而是根据url中include进行查询. 所以columns()会解析url中include并结合resource中的定义进行合适的select.
 
 #### include的语法规则
 
 已实例进行讲解
 
-`http://api.test/posts/{slug}?include=user`  
-
-在post的基础上 include 这篇post的作者
+`http://api.test/posts/{slug}?include=user`  基础使用,在post的基础上 include 这篇post的作者
 
 **我想include PostResource中定义的更多的东西怎么办?**
 
@@ -384,17 +381,17 @@ meta的另一点时, 上面观察response data时你可能已经发现, 只有�
 
 **我想同时引入comment中的user和replies怎么做?**
 
-`http://api.test/posts/{slug}?include=user,content,comments{user,replies}  `  使用 `{}` 和 `,` 来进行深层次的嵌套
+`http://api.test/posts/{slug}?include=user,content,comments{user,replies}  `  使用 `{}` 和 `,` 来代替`.`语法进行嵌套
 
 > 在dingo/api中 你可能需要这么做  `include=comment.user,comment.replies`
 
 **我想对include的comments添加一些条件我应该怎么做?**
 
-`http://api.test/posts/{slug}?include=user,content,comments(sort_by:created_at,order:desc){user,replies}`
+`http://api.test/posts/{slug}?include=user,content,comments(sort_by:created_at,order:desc){user,replies}`  条件语法紧跟着comments, `()`中包围的既params,  形式为 `key1:value1,key2:value2`
 
-> 实际上 目前只有 each和meta支持回调.  后续会对column和relation添加回调.届时,params将会有用武之地
+> 实际上 目前只有 each和meta支持回调.  后续会对columns和relations添加回调.到时params将会有更强大的作用
 
-**这就是 include的所有语法规则了, 理论上述所有的语法规则都支持无限嵌套与任意组合**
+**这就是 include的所有语法规则了, 理论上所有的语法规则都支持无限嵌套与任意组合**
 
 比如 `include=a,b.c.d,c{b},c{b(f:b),a.b.c},c(b.a),c{f,b}.b(a:b).c` 
 
@@ -406,7 +403,7 @@ meta的另一点时, 上面观察response data时你可能已经发现, 只有�
 
 - 添加单元测试
 
-- 添加一些基础功能 比如
+- 为定义添加一些基础功能 比如
 
   ```php
   protected $relations = [
@@ -426,10 +423,12 @@ meta的另一点时, 上面观察response data时你可能已经发现, 只有�
   ];
   ```
 
-  但是实际上php并不支持回调式的写法,所以需要计划一下解决方案, 以及引入哪些基本功能
+  > php并不支持回调式的写法,所以需要计划一下解决方案, 以及引入哪些基本功能
 
 - 添加中文及英文文档
 
-实际上在几个月前,该项目就基本完成了.受到工作影响搁置,最后一点始终无法完成,所以想赶一把进度.
 
-**目前版本属于 alpha 测试版本, 不推荐商业用途使用,推荐在个人项目中进行使用.**
+
+实际上在几个月前,该项目就基本完成了.受到工作影响搁置,最后一点收尾始终无法完成,我不想这个项目付诸东流,所以在年前赶一波进度.
+
+希望大家发表自己的想法与意见,争取尽快发布1.0版本,在商业项目上有用武之地
