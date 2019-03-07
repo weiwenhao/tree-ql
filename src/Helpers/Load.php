@@ -19,10 +19,10 @@ trait Load
 
             // post collection load comment. so use comment params
             $collection->loadMissing([$relationName => function ($builder) use ($constraint) {
-                // TODO builder callback pass params
+
                 $builder->addSelect(array_keys($constraint['columns']));
 
-//                method_exists($this, 'builder') && $this->builder($builder, $constraint['params']);
+                method_exists($this, 'loadConstraint') && $this->loadConstraint($builder, $constraint['params']);
             }]);
 
             $this->setCollection(Collection::make($collection->pluck($relationName)->flatten()));
