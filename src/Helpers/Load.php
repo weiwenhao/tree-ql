@@ -22,7 +22,7 @@ trait Load
 
                 $builder->addSelect(array_keys($constraint['columns']));
 
-                method_exists($this, 'loadConstraint') && $this->loadConstraint($builder, $constraint['params']);
+                method_exists($this, 'loadConstraint') && $this->loadConstraint($builder, $constraint['params'] ?? []);
             }]);
 
             $this->setCollection(Collection::make($collection->pluck($relationName)->flatten()));
