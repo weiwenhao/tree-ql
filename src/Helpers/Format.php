@@ -26,7 +26,7 @@ trait Format
                 $temp[] = $this->dataToArray($model, $tree);
             }
         } else {
-            $attributes = array_merge($tree['columns'], $tree['each']);
+            $attributes = array_merge($tree['columns'], $tree['custom']);
 
             foreach ($attributes as $name => $constraint) {
                 $temp[$name] = $data->{$name};

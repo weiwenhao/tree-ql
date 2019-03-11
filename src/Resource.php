@@ -19,7 +19,7 @@ abstract class Resource implements Arrayable
     protected $columns = [];
     protected $relations = [];
     protected $meta = [];
-    protected $each = [];
+    protected $custom = [];
 
     private $params;
 
@@ -263,10 +263,10 @@ abstract class Resource implements Arrayable
     /**
      * @return array
      */
-    public function getEach(): array
+    public function getCustom(): array
     {
         $temp = [];
-        foreach ($this->each as $key => $value) {
+        foreach ($this->custom as $key => $value) {
             if (is_numeric($key)) {
                 $key = $value;
                 $value = [];
@@ -279,11 +279,11 @@ abstract class Resource implements Arrayable
     }
 
     /**
-     * @param array $each
+     * @param array $custom
      */
-    public function setEach(array $each): void
+    public function setCustom(array $custom): void
     {
-        $this->each = $each;
+        $this->custom = $custom;
     }
 
 
