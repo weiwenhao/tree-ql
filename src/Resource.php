@@ -33,6 +33,8 @@ abstract class Resource implements Arrayable
      */
     private $collection;
 
+    private $model;
+
     private $parentResource;
 
     private $parsedInclude;
@@ -58,12 +60,18 @@ abstract class Resource implements Arrayable
 
         // 分情况处理
         if ($data instanceof Model) {
+
             $resource->dataType = 'model';
+            $resource->setModel($data);
             $resource->setCollection(Collection::make([$data]));
+
         } elseif ($data instanceof Collection) {
+
             $resource->dataType = 'collection';
             $resource->setCollection($data);
+
         } elseif ($data instanceof LengthAwarePaginator) {
+
             $resource->dataType = 'pagination';
             $resource->responseMeta['pagination'] = $resource->parsePagination($data);
 
@@ -110,7 +118,6 @@ abstract class Resource implements Arrayable
     {
         $this->parsedInclude = $parsedInclude;
     }
-
 
     /**
      * @return mixed
@@ -286,9 +293,6 @@ abstract class Resource implements Arrayable
         $this->custom = $custom;
     }
 
-
-
-
     /**
      * @return array
      */
@@ -319,5 +323,21 @@ abstract class Resource implements Arrayable
     public function setResponseData($responseData): void
     {
         $this->responseData = $responseData;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getModel()
+    {
+        return $this->model;
+    }
+
+    /**
+     * @param mixed $model
+     */
+    public function setModel($model): void
+    {
+        $this->model = $model;
     }
 }

@@ -11,10 +11,13 @@ trait Format
      */
     public function toArray()
     {
-        return [
+        $response = [
             'data' => $this->dataToArray($this->getResponseData(), $this->getTree()),
-            'meta' => $this->getResponseMeta(),
         ];
+
+        $this->getResponseMeta() && $response['meta'] =  $this->getResponseMeta();
+
+        return $response;
     }
 
 
