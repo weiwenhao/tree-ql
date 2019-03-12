@@ -191,7 +191,7 @@ It is not stored in the database, and the column is calculated by some rules.
 
 When do you need to include custom?
 
-在帖子列表的某些场景中,会展示当前用户是否点赞过该帖子,这是一个耗费性能的计算.
+In some scenarios of a list of posts, it is shown whether the current user has thumb up over the post, which is a performance-intensive calculation.
 
  ```json
 {
