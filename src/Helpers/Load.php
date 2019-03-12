@@ -19,17 +19,17 @@ trait Load
 
             // post collection load comment. so use comment params
             $collection->loadMissing([$relationName => function ($builder) use ($constraint) {
-                // TODO builder callback pass params
+
                 $builder->addSelect(array_keys($constraint['columns']));
 
-//                method_exists($this, 'builder') && $this->builder($builder, $constraint['params']);
+                method_exists($this, 'loadConstraint') && $this->loadConstraint($builder, $constraint['params'] ?? []);
             }]);
 
             $this->setCollection(Collection::make($collection->pluck($relationName)->flatten()));
         }
 
-        // load each
-        $this->loadEach($constraint['each']);
+        // load custom
+        $this->loadCustom($constraint['custom']);
 
         // load meta
         $this->loadMeta($constraint['meta']);
@@ -45,12 +45,12 @@ trait Load
     }
 
     /**
-     * each is free
-     * @param $each
+     * custom is free
+     * @param $custom
      */
-    protected function loadEach($each)
+    protected function loadCustom($custom)
     {
-        foreach ($each as $name => $constraint) {
+        foreach ($custom as $name => $constraint) {
             if (!method_exists($this, camel_case($name))) {
                 continue;
             }

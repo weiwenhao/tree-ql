@@ -16,13 +16,13 @@ trait Tree
         $columns = $this->getColumns();
         $relations = $this->getRelations();
         $meta = $this->getMeta();
-        $each = $this->getEach();
+        $custom = $this->getCustom();
 
         $tree = [
             'resource' => $this,
             'columns' => $this->parseDefault($columns),
             'meta' => $this->parseDefault($meta),
-            'each' => $this->parseDefault($each),
+            'custom' => $this->parseDefault($custom),
             'relations' => $this->parseDefault($relations)
         ];
 
@@ -50,7 +50,7 @@ trait Tree
             } else {
                 isset($columns[$name]) && $key = 'columns';
                 isset($meta[$name]) && $key = 'meta';
-                isset($each[$name]) && $key = 'each';
+                isset($custom[$name]) && $key = 'custom';
 
                 if (!isset($key)) {
                     continue;

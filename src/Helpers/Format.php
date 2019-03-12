@@ -11,10 +11,13 @@ trait Format
      */
     public function toArray()
     {
-        return [
+        $response = [
             'data' => $this->dataToArray($this->getResponseData(), $this->getTree()),
-            'meta' => $this->getResponseMeta(),
         ];
+
+        $this->getResponseMeta() && $response['meta'] =  $this->getResponseMeta();
+
+        return $response;
     }
 
 
@@ -26,7 +29,7 @@ trait Format
                 $temp[] = $this->dataToArray($model, $tree);
             }
         } else {
-            $attributes = array_merge($tree['columns'], $tree['each']);
+            $attributes = array_merge($tree['columns'], $tree['custom']);
 
             foreach ($attributes as $name => $constraint) {
                 $temp[$name] = $data->{$name};
