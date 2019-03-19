@@ -23,6 +23,10 @@ trait Format
 
     private function dataToArray($data, $tree)
     {
+        if (!$data) {
+            return $data;
+        }
+
         $temp = [];
         if ($data instanceof Collection) {
             foreach ($data as $model) {
