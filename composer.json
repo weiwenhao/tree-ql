@@ -4,6 +4,7 @@
     "keywords": ["laravel", "include", "api", "tree-ql"],
     "license": "MIT",
     "type": "library",
+    "minimum-stability": "dev",
     "support": {
         "issues": "https://github.com/weiwenhao/tree-ql/issues",
         "source": "https://github.com/weiwenhao/tree-ql"
