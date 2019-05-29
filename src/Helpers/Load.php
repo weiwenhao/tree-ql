@@ -19,8 +19,16 @@ trait Load
 
             // post collection load comment. so use comment params
             $collection->loadMissing([$relationName => function ($builder) use ($constraint) {
-
-                $builder->addSelect(array_keys($constraint['columns']));
+                $columns = array_keys($constraint['columns']);
+                // 防止多对多关联出错
+                if ($builder instanceof BelongsToMany) {
+                    foreach ($columns as &$value){
+                        if (!strpos($value,'.')){
+                        $value = $builder->getRelationName().'.'.$value;
+                        }
+                    }
+                }
+                $builder->addSelect($columns);
 
                 method_exists($this, 'loadConstraint') && $this->loadConstraint($builder, $constraint['params'] ?? []);
             }]);
