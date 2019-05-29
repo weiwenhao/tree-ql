@@ -224,7 +224,7 @@ abstract class Resource implements Arrayable
 
             if (!isset($constraint['resource'])) {
                 $constraint['resource'] = config('including.resource_namespace', "App\\Resources\\")
-                    . studly_case(str_singular($name) . '_resource');
+                    . studly_case($name . '_resource');
             }
 
             $temp[$name] = $constraint;
