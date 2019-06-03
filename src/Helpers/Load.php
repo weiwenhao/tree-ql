@@ -20,7 +20,11 @@ trait Load
             // post collection load comment. so use comment params
             $collection->loadMissing([$relationName => function ($builder) use ($constraint) {
 
-                $builder->addSelect(array_keys($constraint['columns']));
+                $relationName = $builder->getRelationName();
+                $columns = array_keys($constraint['columns']);
+                foreach ($columns as $column) {
+                    $builder->addSelect($relationName . '.' . $column);
+                }
 
                 method_exists($this, 'loadConstraint') && $this->loadConstraint($builder, $constraint['params'] ?? []);
             }]);
